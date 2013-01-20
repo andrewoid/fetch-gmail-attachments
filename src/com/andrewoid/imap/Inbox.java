@@ -20,36 +20,35 @@ import org.apache.commons.io.IOUtils;
 
 public class Inbox {
 
-	private static final String MULTIPART_CONTENT_TYPE = "multipart/";
-	private Store store;
+	private static final String	MULTIPART_CONTENT_TYPE	= "multipart/";
+	private final Store			store;
 
-	public Inbox(String server, String email, String password)
-			throws MessagingException {
-		Properties props = new Properties();
-		Session session = Session.getDefaultInstance(props, null);
+	public Inbox(final String server, final String email, final String password) throws MessagingException {
+		final Properties props = new Properties();
+		final Session session = Session.getDefaultInstance(props, null);
 		store = session.getStore("imaps");
 		store.connect(server, email, password);
 	}
 
-	public void downloadAttachments(File toDir) throws MessagingException,
-			IOException {
-		Folder inbox = store.getFolder("Inbox");
+	public void downloadAttachments(final File toDir) throws MessagingException, IOException {
+		final Folder inbox = store.getFolder("Inbox");
 		inbox.open(Folder.READ_ONLY);
-		Message messages[] = inbox.getMessages();
+		final Message messages[] = inbox.getMessages();
 
-		for (Message message : messages) {
+		toDir.mkdirs();
+
+		for (final Message message : messages) {
 			if (isMultipartMessage(message)) {
 				handleMessage(toDir, message);
 			}
 		}
 	}
 
-	private void handleMessage(File toDir, Message message) throws IOException,
-			MessagingException {
-		Multipart multipart = (Multipart) message.getContent();
+	private void handleMessage(final File toDir, final Message message) throws IOException, MessagingException {
+		final Multipart multipart = (Multipart) message.getContent();
 
 		for (int i = 0; i < multipart.getCount(); i++) {
-			BodyPart bodyPart = multipart.getBodyPart(i);
+			final BodyPart bodyPart = multipart.getBodyPart(i);
 			if (isNotAttachment(bodyPart)) {
 				continue;
 			}
@@ -57,31 +56,30 @@ public class Inbox {
 		}
 	}
 
-	private void saveFile(File toDir, BodyPart bodyPart) throws IOException,
-			MessagingException {
+	private void saveFile(final File toDir, final BodyPart bodyPart) throws IOException, MessagingException {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
 			in = bodyPart.getInputStream();
-			File f = new File(toDir, bodyPart.getFileName());
+			final File f = new File(toDir, bodyPart.getFileName());
+			System.out.println(f);
 			if (f.exists()) {
 				f.delete();
 			}
 			out = new FileOutputStream(f);
 			IOUtils.copy(in, out);
-		} finally {
+		}
+		finally {
 			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
 		}
 	}
 
-	private boolean isNotAttachment(BodyPart bodyPart)
-			throws MessagingException {
+	private boolean isNotAttachment(final BodyPart bodyPart) throws MessagingException {
 		return !Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition());
 	}
 
-	private boolean isMultipartMessage(Message message)
-			throws MessagingException {
+	private boolean isMultipartMessage(final Message message) throws MessagingException {
 		return message.getContentType().startsWith(MULTIPART_CONTENT_TYPE);
 	}
 
