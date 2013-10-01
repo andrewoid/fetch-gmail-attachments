@@ -22,8 +22,12 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 	private final JTextField		emailField;
 	private final JPasswordField	passwordField;
 	private final JButton			submit;
+	private final FetchProperties	properties;
 
 	public GuiFetchMain() {
+
+		properties = new FetchProperties();
+		properties.load();
 
 		this.setTitle("Fetch Inbox Mail Attachments");
 		this.setSize(250, 175);
@@ -33,11 +37,11 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 		contentPane.setLayout(new GridLayout(4, 2));
 
 		contentPane.add(new JLabel("Server: "));
-		serverField = new JTextField("imap.gmail.com");
+		serverField = new JTextField(properties.getServerName());
 		contentPane.add(serverField);
 
 		contentPane.add(new JLabel("Email: "));
-		emailField = new JTextField();
+		emailField = new JTextField(properties.getEmailAddress());
 		contentPane.add(emailField);
 
 		contentPane.add(new JLabel("Password: "));
@@ -59,6 +63,9 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent event) {
 		try {
+			properties.setEmailAddress(emailField.getText());
+			properties.setServerName(serverField.getText());
+			properties.save();
 			final Inbox inbox = new Inbox(serverField.getText(), emailField.getText(), passwordField.getText());
 			final File dir = new File("./inbox");
 			inbox.downloadAttachments(dir);

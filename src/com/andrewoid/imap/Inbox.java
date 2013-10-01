@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -15,6 +16,7 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.io.IOUtils;
 
@@ -46,13 +48,17 @@ public class Inbox {
 
 	private void handleMessage(final File toDir, final Message message) throws IOException, MessagingException {
 		final Multipart multipart = (Multipart) message.getContent();
+		final Address[] froms = message.getFrom();
+		final String emailAddress = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
+		final File subDir = new File(toDir, emailAddress);
+		subDir.mkdirs();
 
 		for (int i = 0; i < multipart.getCount(); i++) {
 			final BodyPart bodyPart = multipart.getBodyPart(i);
 			if (isNotAttachment(bodyPart)) {
 				continue;
 			}
-			saveFile(toDir, bodyPart);
+			saveFile(subDir, bodyPart);
 		}
 	}
 
@@ -64,7 +70,8 @@ public class Inbox {
 			final File f = new File(toDir, bodyPart.getFileName());
 			System.out.println(f);
 			if (f.exists()) {
-				f.delete();
+				return;
+				// f.delete();
 			}
 			out = new FileOutputStream(f);
 			IOUtils.copy(in, out);

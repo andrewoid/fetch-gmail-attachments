@@ -1,0 +1,13 @@
+<project name="antsimple" default="dist" basedir=".">
+
+	<target name="dist" description="generate the distribution">
+		<jar jarfile="downloadAttachments.jar" basedir="./bin">
+			<zipgroupfileset dir="libs" includes="**/*.jar" />
+			<manifest>
+				<attribute name="Main-Class" value="com.andrewoid.imap.GuiFetchMain" />
+			</manifest>
+			<include name="**/*.class" />
+		</jar>
+	</target>
+
+</project>

@@ -12,21 +12,28 @@ import org.apache.commons.io.IOUtils;
 
 public class UnZipper {
 
-	private final File	dir;
+	private final File	root;
 
 	public UnZipper(final File dir) {
-		this.dir = dir;
+		this.root = dir;
 	}
 
 	public void unzipAllFiles() throws IOException {
+		unzipAllFiles(root);
+	}
+
+	public void unzipAllFiles(final File dir) throws IOException {
 		for (final File f : dir.listFiles()) {
-			if (isZipFile(f)) {
-				extractAllFiles(f);
+			if (f.isDirectory()) {
+				unzipAllFiles(f);
+			}
+			else if (isZipFile(f)) {
+				extractAllFiles(dir, f);
 			}
 		}
 	}
 
-	private void extractAllFiles(final File f) throws FileNotFoundException, IOException {
+	private void extractAllFiles(final File dir, final File f) throws FileNotFoundException, IOException {
 		System.out.println("Extracting " + f);
 		final ZipInputStream zis = new ZipInputStream(new FileInputStream(f));
 		ZipEntry ze;
@@ -43,6 +50,7 @@ public class UnZipper {
 
 		zis.closeEntry();
 		zis.close();
+		f.delete();
 	}
 
 	private void extractFile(final ZipInputStream zis, final File newFile) throws FileNotFoundException, IOException {
