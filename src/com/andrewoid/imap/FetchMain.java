@@ -16,7 +16,7 @@ public class FetchMain {
 		final String email = scanner.nextLine();
 		System.out.println("Enter password: ");
 		final String password = scanner.nextLine();
-		final Inbox inbox = new Inbox(server, email, password);
+		final Inbox inbox = new Inbox(server, email, password, true, true);
 		final File toDir = new File("./tmp");
 		inbox.downloadAttachments(toDir);
 	}

@@ -1,11 +1,15 @@
 package com.andrewoid.imap;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
@@ -24,12 +28,20 @@ public class Inbox {
 
 	private static final String	MULTIPART_CONTENT_TYPE	= "multipart/";
 	private final Store			store;
+	private final boolean		uncompressZipFiles;
+	private final boolean		flatten;
 
-	public Inbox(final String server, final String email, final String password) throws MessagingException {
+	public Inbox(	final String server,
+					final String email,
+					final String password,
+					final boolean uncompressZipFiles,
+					final boolean flatten) throws MessagingException {
 		final Properties props = new Properties();
 		final Session session = Session.getDefaultInstance(props, null);
 		store = session.getStore("imaps");
 		store.connect(server, email, password);
+		this.uncompressZipFiles = uncompressZipFiles;
+		this.flatten = flatten;
 	}
 
 	public void downloadAttachments(final File toDir) throws MessagingException, IOException {
@@ -59,7 +71,45 @@ public class Inbox {
 				continue;
 			}
 			saveFile(subDir, bodyPart);
+			final String fileName = bodyPart.getFileName();
+			if (uncompressZipFiles && isZipFile(fileName)) {
+				uncompress(subDir, new File(subDir, fileName));
+			}
 		}
+	}
+
+	private void uncompress(final File root, final File f) throws FileNotFoundException, IOException {
+		System.out.println("Extracting " + f);
+		final ZipInputStream zis = new ZipInputStream(new FileInputStream(f));
+		ZipEntry ze;
+		while ((ze = zis.getNextEntry()) != null) {
+			final String fileName = ze.getName();
+			File newFile = new File(root, fileName);
+			if (!ze.isDirectory()) {
+				if (flatten) {
+					newFile = new File(root, newFile.getName());
+				}
+				extractFile(zis, newFile);
+			}
+		}
+
+		zis.closeEntry();
+		zis.close();
+		f.delete();
+	}
+
+	private void extractFile(final ZipInputStream zis, final File newFile) throws FileNotFoundException, IOException {
+		new File(newFile.getParent()).mkdirs();
+
+		final FileOutputStream fos = new FileOutputStream(newFile);
+
+		IOUtils.copy(zis, fos);
+
+		fos.close();
+	}
+
+	private boolean isZipFile(final String filename) {
+		return filename.endsWith(".zip");
 	}
 
 	private void saveFile(final File toDir, final BodyPart bodyPart) throws IOException, MessagingException {

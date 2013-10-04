@@ -66,11 +66,10 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 			properties.setEmailAddress(emailField.getText());
 			properties.setServerName(serverField.getText());
 			properties.save();
-			final Inbox inbox = new Inbox(serverField.getText(), emailField.getText(), passwordField.getText());
+			final Inbox inbox = new Inbox(serverField.getText(), emailField.getText(), passwordField.getText(), true,
+					true);
 			final File dir = new File("./inbox");
 			inbox.downloadAttachments(dir);
-			final UnZipper unzipper = new UnZipper(dir);
-			unzipper.unzipAllFiles();
 		}
 		catch (final MessagingException e) {
 			e.printStackTrace();
