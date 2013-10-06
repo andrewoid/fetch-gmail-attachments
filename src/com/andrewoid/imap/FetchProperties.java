@@ -51,7 +51,7 @@ public class FetchProperties extends Properties {
 	}
 
 	public String getDownloadLocation() {
-		return this.getProperty("downloadLocation");
+		return this.getProperty("downloadLocation", "./inbox/");
 	}
 
 	public void setGroupByEmailAddress(final boolean groupByEmailAddress) {
