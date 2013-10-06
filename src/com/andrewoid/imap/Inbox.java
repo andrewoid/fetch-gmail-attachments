@@ -30,18 +30,21 @@ public class Inbox {
 	private final Store			store;
 	private final boolean		uncompressZipFiles;
 	private final boolean		flatten;
+	private final boolean		groupByEmailAddress;
 
 	public Inbox(	final String server,
 					final String email,
 					final String password,
 					final boolean uncompressZipFiles,
-					final boolean flatten) throws MessagingException {
+					final boolean flatten,
+					final boolean groupByEmailAddress) throws MessagingException {
 		final Properties props = new Properties();
 		final Session session = Session.getDefaultInstance(props, null);
 		store = session.getStore("imaps");
 		store.connect(server, email, password);
 		this.uncompressZipFiles = uncompressZipFiles;
 		this.flatten = flatten;
+		this.groupByEmailAddress = groupByEmailAddress;
 	}
 
 	public void downloadAttachments(final File toDir) throws MessagingException, IOException {
@@ -62,7 +65,7 @@ public class Inbox {
 		final Multipart multipart = (Multipart) message.getContent();
 		final Address[] froms = message.getFrom();
 		final String emailAddress = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
-		final File subDir = new File(toDir, emailAddress);
+		final File subDir = groupByEmailAddress ? new File(toDir, emailAddress) : toDir;
 		subDir.mkdirs();
 
 		for (int i = 0; i < multipart.getCount(); i++) {

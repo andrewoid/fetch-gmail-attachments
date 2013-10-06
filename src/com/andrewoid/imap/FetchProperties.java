@@ -46,4 +46,36 @@ public class FetchProperties extends Properties {
 		this.setProperty("email", email);
 	}
 
+	public void setDownloadLocation(final String downloadLocation) {
+		this.setProperty("downloadLocation", downloadLocation);
+	}
+
+	public String getDownloadLocation() {
+		return this.getProperty("downloadLocation");
+	}
+
+	public void setGroupByEmailAddress(final boolean groupByEmailAddress) {
+		this.setProperty("groupByEmailAddress", String.valueOf(groupByEmailAddress));
+	}
+
+	public boolean getGroupByEmailAddress() {
+		return Boolean.parseBoolean(this.getProperty("groupByEmailAddress", "true"));
+	}
+
+	public void setExtractZipFiles(final boolean extractZipFiles) {
+		this.setProperty("extractZipFiles", String.valueOf(extractZipFiles));
+	}
+
+	public boolean getExtractZipFiles() {
+		return Boolean.parseBoolean(this.getProperty("extractZipFiles", "true"));
+	}
+
+	public void setFlattenZipFiles(final boolean flattenZipFiles) {
+		this.setProperty("flattenZipFiles", String.valueOf(flattenZipFiles));
+	}
+
+	public boolean getFlattenZipFiles() {
+		return Boolean.parseBoolean(this.getProperty("flattenZipFiles", "true"));
+	}
+
 }
