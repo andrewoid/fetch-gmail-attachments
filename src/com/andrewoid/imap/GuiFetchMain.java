@@ -46,19 +46,19 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 		final Container contentPane = this.getContentPane();
 		contentPane.setLayout(new GridLayout(8, 2));
 
-		contentPane.add(new JLabel("Server: "));
+		contentPane.add(new JLabel("Server:"));
 		serverField = new JTextField(properties.getServerName());
 		contentPane.add(serverField);
 
-		contentPane.add(new JLabel("Email: "));
+		contentPane.add(new JLabel("Email:"));
 		emailField = new JTextField(properties.getEmailAddress());
 		contentPane.add(emailField);
 
-		contentPane.add(new JLabel("Password: "));
+		contentPane.add(new JLabel("Password:"));
 		passwordField = new JPasswordField();
 		contentPane.add(passwordField);
 
-		contentPane.add(new JLabel("Download Directory"));
+		contentPane.add(new JLabel("Download Directory:"));
 		directoryField = new JButton(properties.getDownloadLocation());
 		final JFileChooser fileChooser = new JFileChooser();
 		directoryField.addActionListener(new ActionListener() {
@@ -77,17 +77,17 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 		});
 		contentPane.add(directoryField);
 
-		contentPane.add(new JLabel("Group Files"));
+		contentPane.add(new JLabel("Group Files:"));
 		groupFiles = new JCheckBox();
 		groupFiles.setSelected(properties.getGroupByEmailAddress());
 		contentPane.add(groupFiles);
 
-		contentPane.add(new JLabel("Decompress Zips"));
+		contentPane.add(new JLabel("Decompress Zips:"));
 		extractZips = new JCheckBox();
 		extractZips.setSelected(properties.getExtractZipFiles());
 		contentPane.add(extractZips);
 
-		contentPane.add(new JLabel("Flatten Zips"));
+		contentPane.add(new JLabel("Flatten Zips:"));
 		flattenZips = new JCheckBox();
 		flattenZips.setSelected(properties.getFlattenZipFiles());
 		contentPane.add(flattenZips);
