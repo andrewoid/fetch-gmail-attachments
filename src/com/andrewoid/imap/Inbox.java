@@ -122,10 +122,6 @@ public class Inbox {
 			in = bodyPart.getInputStream();
 			final File f = new File(toDir, bodyPart.getFileName());
 			System.out.println(f);
-			if (f.exists()) {
-				return;
-				// f.delete();
-			}
 			out = new FileOutputStream(f);
 			IOUtils.copy(in, out);
 		}
