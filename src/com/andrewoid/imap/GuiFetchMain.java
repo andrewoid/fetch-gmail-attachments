@@ -5,9 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 
-import javax.mail.MessagingException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -15,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 
 public class GuiFetchMain extends JFrame implements ActionListener {
 
@@ -106,25 +105,34 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(final ActionEvent event) {
-		try {
-			properties.setEmailAddress(emailField.getText());
-			properties.setServerName(serverField.getText());
-			properties.setDownloadLocation(directoryField.getText());
-			properties.setExtractZipFiles(extractZips.isSelected());
-			properties.setFlattenZipFiles(flattenZips.isSelected());
-			properties.setGroupByEmailAddress(groupFiles.isSelected());
-			properties.save();
-			final Inbox inbox = new Inbox(serverField.getText(), emailField.getText(), passwordField.getText(),
-					extractZips.isSelected(), flattenZips.isSelected(), groupFiles.isSelected());
-			final File dir = new File(directoryField.getText());
-			inbox.downloadAttachments(dir);
-		}
-		catch (final MessagingException e) {
-			e.printStackTrace();
-		}
-		catch (final IOException e) {
-			e.printStackTrace();
-		}
-	}
+		final SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
+			@Override
+			protected Void doInBackground() throws Exception {
+				properties.setEmailAddress(emailField.getText());
+				properties.setServerName(serverField.getText());
+				properties.setDownloadLocation(directoryField.getText());
+				properties.setExtractZipFiles(extractZips.isSelected());
+				properties.setFlattenZipFiles(flattenZips.isSelected());
+				properties.setGroupByEmailAddress(groupFiles.isSelected());
+				properties.save();
+				final Inbox inbox = new Inbox(serverField.getText(), emailField.getText(), passwordField.getText(),
+						extractZips.isSelected(), flattenZips.isSelected(), groupFiles.isSelected());
+				final File dir = new File(directoryField.getText());
+				submit.setText("Downloading...");
+				submit.setEnabled(false);
+				inbox.downloadAttachments(dir);
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				super.done();
+
+				submit.setText("Submit");
+				submit.setEnabled(true);
+			}
+		};
+		worker.execute();
+	}
 }
