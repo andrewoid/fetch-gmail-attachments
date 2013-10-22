@@ -60,6 +60,7 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 		contentPane.add(new JLabel("Download Directory:"));
 		directoryField = new JButton(properties.getDownloadLocation());
 		final JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		directoryField.addActionListener(new ActionListener() {
 
 			@Override
