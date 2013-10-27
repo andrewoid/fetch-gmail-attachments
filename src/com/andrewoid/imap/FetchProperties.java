@@ -2,10 +2,9 @@ package com.andrewoid.imap;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.util.Properties;
 
 public class FetchProperties extends Properties {
@@ -23,11 +22,10 @@ public class FetchProperties extends Properties {
 		}
 	}
 
-	public void save() throws FileNotFoundException {
-		final PrintStream printStream = new PrintStream(new FileOutputStream(new File(OUTPUT_FILENAME)));
-		this.list(printStream);
-		printStream.flush();
-		printStream.close();
+	public void store() throws IOException {
+		final OutputStream out = new FileOutputStream(new File(OUTPUT_FILENAME));
+		super.store(out, "");
+		out.close();
 	}
 
 	public void setServerName(final String serverName) {

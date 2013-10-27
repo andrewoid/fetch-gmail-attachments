@@ -27,11 +27,29 @@ import org.apache.commons.io.IOUtils;
 // TODO: move the attachment handling to another class
 public class Inbox {
 
-	private static final String		MULTIPART_CONTENT_TYPE	= "multipart/";
-	private final FetchProperties	properties;
+	private static final String			MULTIPART_CONTENT_TYPE	= "multipart/";
+	private final FetchProperties		properties;
+	private final InboxEventListener	listener;
 
 	public Inbox(final FetchProperties properties) throws MessagingException {
+		this(properties, new InboxEventListener() {
+
+			@Override
+			public void onFileDownloading(final String filename) {
+				System.out.println("Downloading " + filename);
+			}
+
+			@Override
+			public void onFileExtracting(final String filename) {
+				System.out.println("Extracting " + filename);
+			}
+
+		});
+	}
+
+	public Inbox(final FetchProperties properties, final InboxEventListener listener) throws MessagingException {
 		this.properties = properties;
+		this.listener = listener;
 	}
 
 	public void downloadAttachments(final String password) throws MessagingException, IOException {
@@ -75,7 +93,7 @@ public class Inbox {
 	}
 
 	private void uncompress(final File root, final File f) throws FileNotFoundException, IOException {
-		System.out.println("Extracting " + f);
+		listener.onFileExtracting(f.toString());
 		final ZipInputStream zis = new ZipInputStream(new FileInputStream(f));
 		ZipEntry ze;
 		while ((ze = zis.getNextEntry()) != null) {
@@ -109,18 +127,18 @@ public class Inbox {
 	}
 
 	private void saveFile(final File toDir, final BodyPart bodyPart) throws IOException, MessagingException {
-		InputStream in = null;
-		OutputStream out = null;
+		InputStream fileIn = null;
+		OutputStream fileOut = null;
 		try {
-			in = bodyPart.getInputStream();
+			fileIn = bodyPart.getInputStream();
 			final File f = new File(toDir, bodyPart.getFileName());
-			System.out.println(f);
-			out = new FileOutputStream(f);
-			IOUtils.copy(in, out);
+			listener.onFileDownloading(f.toString());
+			fileOut = new FileOutputStream(f);
+			IOUtils.copy(fileIn, fileOut);
 		}
 		finally {
-			IOUtils.closeQuietly(in);
-			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(fileIn);
+			IOUtils.closeQuietly(fileOut);
 		}
 	}
 
