@@ -110,8 +110,13 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 		saveProperties();
 		// submit.setText("Downloading...");
 		// submit.setEnabled(false);
-		final String text = new String(passwordField.getPassword());
-		final InboxWorker worker = new InboxWorker(properties, text);
+		final String password = new String(passwordField.getPassword());
+
+		final TextAreaFrame textAreaFrame = new TextAreaFrame();
+		textAreaFrame.setVisible(true);
+
+		// TODO: probably move this into TextAreaFrame?
+		final InboxWorker worker = new InboxWorker(properties, password, textAreaFrame.getTextArea());
 		worker.execute();
 	}
 

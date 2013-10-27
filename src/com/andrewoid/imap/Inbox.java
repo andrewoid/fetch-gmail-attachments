@@ -44,6 +44,16 @@ public class Inbox {
 				System.out.println("Extracting " + filename);
 			}
 
+			@Override
+			public void onStart() {
+				System.out.println("Start");
+			}
+
+			@Override
+			public void onEnd() {
+				System.out.println("End");
+			}
+
 		});
 	}
 

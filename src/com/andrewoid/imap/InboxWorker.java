@@ -2,19 +2,22 @@ package com.andrewoid.imap;
 
 import java.util.List;
 
+import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
 public class InboxWorker extends SwingWorker<Void, String> implements InboxEventListener {
 
 	private final FetchProperties	properties;
 	private final String			password;
+	private final JTextArea			area;
 
 	// TODO: what are the security implications of passing around a String
 	// password?
-	public InboxWorker(final FetchProperties properties, final String password) {
+	public InboxWorker(final FetchProperties properties, final String password, final JTextArea area) {
 		super();
 		this.properties = properties;
 		this.password = password;
+		this.area = area;
 	}
 
 	@Override
@@ -42,8 +45,20 @@ public class InboxWorker extends SwingWorker<Void, String> implements InboxEvent
 	@Override
 	protected void process(final List<String> chunks) {
 		for (final String s : chunks) {
-			System.out.println(s);
+			area.append(s);
+			area.append("\n");
 		}
+	}
+
+	@Override
+	public void onStart() {
+		publish("Start");
+	}
+
+	@Override
+	public void onEnd() {
+		publish("End");
+
 	}
 
 }
