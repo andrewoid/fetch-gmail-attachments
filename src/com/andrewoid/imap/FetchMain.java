@@ -1,6 +1,5 @@
 package com.andrewoid.imap;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -16,9 +15,13 @@ public class FetchMain {
 		final String email = scanner.nextLine();
 		System.out.println("Enter password: ");
 		final String password = scanner.nextLine();
-		final Inbox inbox = new Inbox(server, email, password, true, true, true);
-		final File toDir = new File("./tmp");
-		inbox.downloadAttachments(toDir);
+		scanner.close();
+		final FetchProperties properties = new FetchProperties();
+		properties.setDownloadLocation("./tmp");
+		properties.setEmailAddress(email);
+		properties.setServerName(server);
+		final Inbox inbox = new Inbox(properties);
+		inbox.downloadAttachments(password);
 	}
 
 }

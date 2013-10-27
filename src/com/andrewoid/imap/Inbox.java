@@ -24,34 +24,27 @@ import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.io.IOUtils;
 
+// TODO: move the attachment handling to another class
 public class Inbox {
 
-	private static final String	MULTIPART_CONTENT_TYPE	= "multipart/";
-	private final Store			store;
-	private final boolean		uncompressZipFiles;
-	private final boolean		flatten;
-	private final boolean		groupByEmailAddress;
+	private static final String		MULTIPART_CONTENT_TYPE	= "multipart/";
+	private final FetchProperties	properties;
 
-	public Inbox(	final String server,
-					final String email,
-					final String password,
-					final boolean uncompressZipFiles,
-					final boolean flatten,
-					final boolean groupByEmailAddress) throws MessagingException {
-		final Properties props = new Properties();
-		final Session session = Session.getDefaultInstance(props, null);
-		store = session.getStore("imaps");
-		store.connect(server, email, password);
-		this.uncompressZipFiles = uncompressZipFiles;
-		this.flatten = flatten;
-		this.groupByEmailAddress = groupByEmailAddress;
+	public Inbox(final FetchProperties properties) throws MessagingException {
+		this.properties = properties;
 	}
 
-	public void downloadAttachments(final File toDir) throws MessagingException, IOException {
+	public void downloadAttachments(final String password) throws MessagingException, IOException {
+		final Properties props = new Properties();
+		final Session session = Session.getDefaultInstance(props, null);
+		final Store store = session.getStore("imaps");
+		store.connect(properties.getServerName(), properties.getEmailAddress(), password);
+
 		final Folder inbox = store.getFolder("Inbox");
 		inbox.open(Folder.READ_ONLY);
 		final Message messages[] = inbox.getMessages();
 
+		final File toDir = properties.getDownloadLocation();
 		toDir.mkdirs();
 
 		for (final Message message : messages) {
@@ -65,7 +58,7 @@ public class Inbox {
 		final Multipart multipart = (Multipart) message.getContent();
 		final Address[] froms = message.getFrom();
 		final String emailAddress = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
-		final File subDir = groupByEmailAddress ? new File(toDir, emailAddress) : toDir;
+		final File subDir = properties.getGroupByEmailAddress() ? new File(toDir, emailAddress) : toDir;
 		subDir.mkdirs();
 
 		for (int i = 0; i < multipart.getCount(); i++) {
@@ -75,7 +68,7 @@ public class Inbox {
 			}
 			saveFile(subDir, bodyPart);
 			final String fileName = bodyPart.getFileName();
-			if (uncompressZipFiles && isZipFile(fileName)) {
+			if (properties.getExtractZipFiles() && isZipFile(fileName)) {
 				uncompress(subDir, new File(subDir, fileName));
 			}
 		}
@@ -89,7 +82,7 @@ public class Inbox {
 			final String fileName = ze.getName();
 			File newFile = new File(root, fileName);
 			if (!ze.isDirectory()) {
-				if (flatten) {
+				if (properties.getFlattenZipFiles()) {
 					newFile = new File(root, newFile.getName());
 				}
 				extractFile(zis, newFile);

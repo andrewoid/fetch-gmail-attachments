@@ -58,7 +58,7 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 		contentPane.add(passwordField);
 
 		contentPane.add(new JLabel("Download Directory:"));
-		directoryField = new JButton(properties.getDownloadLocation());
+		directoryField = new JButton(properties.getDownloadLocationString());
 		final JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		directoryField.addActionListener(new ActionListener() {
@@ -117,12 +117,10 @@ public class GuiFetchMain extends JFrame implements ActionListener {
 				properties.setFlattenZipFiles(flattenZips.isSelected());
 				properties.setGroupByEmailAddress(groupFiles.isSelected());
 				properties.save();
-				final Inbox inbox = new Inbox(serverField.getText(), emailField.getText(), passwordField.getText(),
-						extractZips.isSelected(), flattenZips.isSelected(), groupFiles.isSelected());
-				final File dir = new File(directoryField.getText());
+				final Inbox inbox = new Inbox(properties);
 				submit.setText("Downloading...");
 				submit.setEnabled(false);
-				inbox.downloadAttachments(dir);
+				inbox.downloadAttachments(new String(passwordField.getPassword()));
 				return null;
 			}
 

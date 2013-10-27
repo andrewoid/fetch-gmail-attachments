@@ -50,7 +50,11 @@ public class FetchProperties extends Properties {
 		this.setProperty("downloadLocation", downloadLocation);
 	}
 
-	public String getDownloadLocation() {
+	public File getDownloadLocation() {
+		return new File(getDownloadLocationString());
+	}
+
+	public String getDownloadLocationString() {
 		return this.getProperty("downloadLocation", "./inbox/");
 	}
 
