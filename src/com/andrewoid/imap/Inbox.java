@@ -113,8 +113,8 @@ public class Inbox {
 				if (properties.getFlattenZipFiles()) {
 					newFile = new File(root, newFile.getName());
 				}
-				newFile.setLastModified(ze.getTime());
 				extractFile(zis, newFile);
+				newFile.setLastModified(ze.getTime());
 			}
 		}
 
