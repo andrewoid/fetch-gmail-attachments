@@ -87,13 +87,13 @@ public class Inbox {
 		final Address[] froms = message.getFrom();
 		final String emailAddress = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
 		final File subDir = properties.getGroupByEmailAddress() ? new File(toDir, emailAddress) : toDir;
-		subDir.mkdirs();
 
 		for (int i = 0; i < multipart.getCount(); i++) {
 			final BodyPart bodyPart = multipart.getBodyPart(i);
 			if (isNotAttachment(bodyPart)) {
 				continue;
-			}
+			}		
+			subDir.mkdirs();
 			saveFile(subDir, bodyPart);
 			final String fileName = bodyPart.getFileName();
 			if (properties.getExtractZipFiles() && isZipFile(fileName)) {
